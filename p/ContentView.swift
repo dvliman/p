@@ -17,63 +17,92 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                VStack(spacing: 30) {
-                    // Form Section
-                    VStack(spacing: 20) {
-                        // Title
-                        Text(selectedCalculation)
-                            .font(.largeTitle)
-                            .fontWeight(.bold)
-                            .foregroundColor(.primary)
-                        
-                        // Form Fields
-                        VStack(spacing: 15) {
-                            // Before Value
-                            VStack(alignment: .leading, spacing: 5) {
-                                Text("Before")
-                                    .font(.headline)
-                                    .foregroundColor(.secondary)
-                                TextField("Enter value", text: $x)
-                                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                                    .keyboardType(.decimalPad)
-                            }
-                            
-                            // After Value
-                            VStack(alignment: .leading, spacing: 5) {
-                                Text("After")
-                                    .font(.headline)
-                                    .foregroundColor(.secondary)
-                                TextField("Enter value", text: $y)
-                                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                                    .keyboardType(.decimalPad)
-                            }
-                            
-                            // Result Field (Read-only)
-                            VStack(alignment: .leading, spacing: 5) {
-                                Text("Result")
-                                    .font(.headline)
-                                    .foregroundColor(.secondary)
-                                TextField("", text: .constant(result))
-                                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                                    .disabled(true)
-                                    .foregroundColor(.primary)
-                            }
-                            
-                            // Calculate Button
-                            Button(action: calculateResult) {
-                                Text("Calculate")
-                                    .font(.headline)
-                                    .foregroundColor(.white)
-                                    .frame(maxWidth: .infinity)
-                                    .padding()
-                                    .background(Color.green)
-                                    .cornerRadius(10)
-                            }
-                            .disabled(x.isEmpty || y.isEmpty)
-                        }
-                        .padding(.horizontal)
-                    }
+                Color(.systemGray6)
+                    .ignoresSafeArea()
+                VStack(spacing: 32) {
+                    Spacer().frame(height: 8)
+                    // Title
+                    Text(selectedCalculation.lowercased())
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .padding(.top, 8)
                     
+                    // Form Card
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 28, style: .continuous)
+                            .fill(Color(.systemGreen).opacity(0.10))
+                        VStack(alignment: .leading, spacing: 24) {
+                            // Before
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Before:")
+                                    .font(.system(size: 20, weight: .semibold))
+                                    .foregroundColor(.black)
+                                TextField("", text: $x)
+                                    .keyboardType(.decimalPad)
+                                    .font(.system(size: 34, weight: .bold, design: .default))
+                                    .foregroundColor(.black)
+                                    .multilineTextAlignment(.center)
+                                    .padding(.vertical, 18)
+                                    .background(Color.white)
+                                    .cornerRadius(16)
+                            }
+                            // After
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("After:")
+                                    .font(.system(size: 20, weight: .semibold))
+                                    .foregroundColor(.black)
+                                TextField("", text: $y)
+                                    .keyboardType(.decimalPad)
+                                    .font(.system(size: 34, weight: .bold, design: .default))
+                                    .foregroundColor(.black)
+                                    .multilineTextAlignment(.center)
+                                    .padding(.vertical, 18)
+                                    .background(Color.white)
+                                    .cornerRadius(16)
+                            }
+                            // Result
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Change:")
+                                    .font(.system(size: 20, weight: .semibold))
+                                    .foregroundColor(.black)
+                                Button(action: {
+                                    if !result.isEmpty { UIPasteboard.general.string = result }
+                                }) {
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: 24, style: .continuous)
+                                            .fill(LinearGradient(gradient: Gradient(colors: [Color.green.opacity(0.9), Color.green.opacity(0.7)]), startPoint: .topLeading, endPoint: .bottomTrailing))
+                                        Text(result.isEmpty ? "-" : result)
+                                            .font(.system(size: 36, weight: .bold, design: .default))
+                                            .foregroundColor(.white)
+                                            .multilineTextAlignment(.center)
+                                            .padding(.vertical, 18)
+                                    }
+                                    .frame(height: 70)
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                                Text("Tap to copy and save to history")
+                                    .font(.system(size: 16))
+                                    .foregroundColor(.gray)
+                                    .frame(maxWidth: .infinity, alignment: .center)
+                                    .padding(.top, 4)
+                            }
+                        }
+                        .padding(24)
+                    }
+                    .padding(.horizontal)
+                    
+                    // Calculate Button
+                    Button(action: calculateResult) {
+                        Text("Calculate")
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.green)
+                            .cornerRadius(16)
+                    }
+                    .disabled(x.isEmpty || y.isEmpty)
+                    .padding(.horizontal)
                     Spacer()
                 }
                 .padding()

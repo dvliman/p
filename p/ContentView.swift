@@ -110,8 +110,9 @@ struct ContentView: View {
                                 Divider().background(Color.white.opacity(0.2))
                                 MenuItem(icon: "bubble.left", label: "Provide Feedback")
                                 Divider().background(Color.white.opacity(0.2))
+                                
                                 // Calculation type section
-                                ForEach(calculationTypes, id: \.(label)) { type in
+                                ForEach(calculationTypes, id: \.label) { type in
                                     Button(action: {
                                         selectedCalculation = type.label
                                         showingMenu = false

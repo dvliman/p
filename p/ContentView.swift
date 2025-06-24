@@ -2,8 +2,8 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var selectedCalculation = "Change"
-    @State private var beforeValue = ""
-    @State private var afterValue = ""
+    @State private var x = ""
+    @State private var y = ""
     @State private var result = ""
     @State private var showingMenu = false
     
@@ -33,7 +33,7 @@ struct ContentView: View {
                                 Text("Before")
                                     .font(.headline)
                                     .foregroundColor(.secondary)
-                                TextField("Enter value", text: $beforeValue)
+                                TextField("Enter value", text: $x)
                                     .textFieldStyle(RoundedBorderTextFieldStyle())
                                     .keyboardType(.decimalPad)
                             }
@@ -43,7 +43,7 @@ struct ContentView: View {
                                 Text("After")
                                     .font(.headline)
                                     .foregroundColor(.secondary)
-                                TextField("Enter value", text: $afterValue)
+                                TextField("Enter value", text: $y)
                                     .textFieldStyle(RoundedBorderTextFieldStyle())
                                     .keyboardType(.decimalPad)
                             }
@@ -69,7 +69,7 @@ struct ContentView: View {
                                     .background(Color.green)
                                     .cornerRadius(10)
                             }
-                            .disabled(beforeValue.isEmpty || afterValue.isEmpty)
+                            .disabled(x.isEmpty || y.isEmpty)
                         }
                         .padding(.horizontal)
                     }
@@ -77,7 +77,6 @@ struct ContentView: View {
                     Spacer()
                 }
                 .padding()
-                .navigationTitle("Percentage Calculator")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
@@ -98,20 +97,7 @@ struct ContentView: View {
                         HStack {
                             Spacer()
                             VStack(spacing: 0) {
-                                Group {
-                                    MenuItem(icon: "pencil", label: "Edit Watchlist")
-                                    MenuItem(icon: "plus", label: "New Watchlist")
-                                }
-                                Divider().background(Color.white.opacity(0.2))
-                                Group {
-                                    MenuItem(icon: "arrow.up.arrow.down", label: "Sort Watchlist By", subtitle: "Percentage Change", chevron: true)
-                                    MenuItem(icon: "chart.line.uptrend.xyaxis", label: "Watchlist Shows", subtitle: "Percentage Change", chevron: true)
-                                }
-                                Divider().background(Color.white.opacity(0.2))
-                                MenuItem(icon: "bubble.left", label: "Provide Feedback")
-                                Divider().background(Color.white.opacity(0.2))
-                                
-                                // Calculation type section
+                                // Calculation type section only
                                 ForEach(calculationTypes, id: \.label) { type in
                                     Button(action: {
                                         selectedCalculation = type.label
@@ -128,7 +114,7 @@ struct ContentView: View {
                                                     .foregroundColor(.blue)
                                             }
                                         }
-                                        .padding(.vertical, 8)
+                                        .padding(.vertical, 12)
                                         .padding(.horizontal)
                                     }
                                     .background(Color.clear)
@@ -152,8 +138,8 @@ struct ContentView: View {
     }
     
     private func calculateResult() {
-        guard let before = Double(beforeValue),
-              let after = Double(afterValue) else {
+        guard let before = Double(x),
+              let after = Double(y) else {
             result = "Invalid input"
             return
         }

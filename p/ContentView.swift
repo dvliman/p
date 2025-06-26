@@ -1,7 +1,15 @@
 import SwiftUI
 
+func percent(z: Double) -> String {
+    return String(format: "%.2f%%", z)
+}
+
+func asString(z: Double) -> String {
+    return String(z)
+}
+
 struct ContentView: View {
-    static let modes: [(icon: String, title: String, subTitle: String, x: String, y: String, z: String, fn: ((Double, Double) -> Double)?)] = [
+    static let modes: [(icon: String, title: String, subTitle: String, x: String, y: String, z: String, fn: ((Double, Double) -> Double)?, outputFn: ((Double) -> String)?)] = [
         (
             icon: "percent",
             title: "Percent Change",
@@ -12,7 +20,8 @@ struct ContentView: View {
             fn: { (x: Double, y: Double) -> Double in
                 guard x != 0 else { return 0 }
                 return ((y - x) / y) * 100
-            }
+            },
+            outputFn: percent
         ),
         (
             icon: "arrow.up",
@@ -23,7 +32,8 @@ struct ContentView: View {
             z: "is",
             fn: { (x: Double, y: Double) -> Double in
                 x  * (1 + (y / 100))
-            }
+            },
+            outputFn: asString
         ),
         (
             icon: "arrow.down",
@@ -34,7 +44,8 @@ struct ContentView: View {
             z: "is",
             fn: { (x: Double, y: Double) -> Double in
                 x  * (1 - (y / 100))
-            }
+            },
+            outputFn: asString
         ),
         (
             icon: "arrow.left.and.right",
@@ -47,7 +58,8 @@ struct ContentView: View {
                 let diff = abs(x - y)
                 let average = (x + y) / 2
                 return (diff / average) * 100
-            }
+            },
+            outputFn: percent
         )
     ]
     
@@ -131,7 +143,14 @@ struct ContentView: View {
                                 .font(.system(size: geometry.size.width * 0.04, weight: .semibold))
                                 .foregroundColor(.primary)
                             
-                            TextField("", text: .constant("read-only value"))
+                            let output: String = {
+                                if let xVal = Double(x), let yVal = Double(y), let fn = mode.fn, let outputFn = mode.outputFn {
+                                    return outputFn(fn(xVal, yVal))
+                                }
+                                return ""
+                            }()
+                            
+                            TextField("", text: .constant(output))
                                 .multilineTextAlignment(.center)
                                 .disabled(true)
                                 .font(.system(size: geometry.size.width * 0.045, weight: .medium))

@@ -230,10 +230,10 @@ struct ContentView: View {
                                 Spacer()
                                 
                                 VStack(spacing: 0) {
-//                                    ForEach(ContentView.modes.indices, id: \.self) { index in
-//                                        menuItem(for: index)
-//                                    }
-                                    modesSelection
+                                    ForEach(ContentView.modes.indices, id: \.self) { index in
+                                        menuItem(for: index)
+                                    }
+                                    Divider()
                                     provideFeedback
                                 }
                                 .background(
@@ -269,47 +269,28 @@ struct ContentView: View {
         }
     }
     
-    private var modesSelection: some View {
-        Menu {
-            ForEach(ContentView.modes.indices, id: \.self) { index in
-                let modeOption = ContentView.modes[index]
-                
-                Button(action: {
-                    mode = modeOption
-                    showingMenu = false
-                }) {
-                    HStack {
-                        Text(modeOption.title)
-                        Spacer()
-                        if mode.title == modeOption.title {
-                            Image(systemName: "checkmark")
-                                .foregroundColor(.blue)
-                        }
-                    }
-                }
-            }
-        } label: {
+    private func menuItem(for index: Int) -> some View {
+        let modeOption = ContentView.modes[index]
+        
+        return Button(action: {
+            mode = modeOption
+            showingMenu = false
+        }) {
             HStack {
-                Image(systemName: "rectangle.stack")
+                Image(systemName: modeOption.icon)
                     .foregroundColor(.blue)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Percent Calculators")
-                        .foregroundColor(.primary)
-                    Text(mode.title)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
+                Text(modeOption.title)
+                    .foregroundColor(.primary)
                 Spacer()
-                Image(systemName: "chevron.right")
-                    .foregroundColor(.secondary)
+                if mode.title == modeOption.title {
+                    Image(systemName: "checkmark")
+                        .foregroundColor(.blue)
+                }
             }
             .padding(.vertical, 12)
             .padding(.horizontal)
-            .background(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(Color(.systemBackground).opacity(0.001)) // invisible but keeps tap area
-            )
         }
+        .background(Color.clear)
     }
     
     private var provideFeedback: some View {

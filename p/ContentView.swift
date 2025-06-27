@@ -75,7 +75,7 @@ struct ContentView: View {
     
     @State private var showingMenu = false
     @FocusState private var focusedField: Field?
-
+    
     func percentValue() -> Bool {
         return mode.y == "by"
     }
@@ -164,7 +164,7 @@ struct ContentView: View {
                                             }) {
                                                 Image(systemName: "xmark.circle.fill")
                                                     .foregroundColor(.gray)
-                                                   
+                                                
                                             }
                                             .padding(.trailing, 8)
                                         }
@@ -230,28 +230,11 @@ struct ContentView: View {
                                 Spacer()
                                 
                                 VStack(spacing: 0) {
-                                    ForEach(ContentView.modes.indices, id: \.self) { index in
-                                        let modeOption = ContentView.modes[index]
-                                        Button(action: {
-                                            mode = modeOption
-                                            showingMenu = false
-                                        }) {
-                                            HStack {
-                                                Image(systemName: modeOption.icon)
-                                                    .foregroundColor(.blue)
-                                                Text(modeOption.title)
-                                                    .foregroundColor(.primary)
-                                                Spacer()
-                                                if mode.title == modeOption.title {
-                                                    Image(systemName: "checkmark")
-                                                        .foregroundColor(.blue)
-                                                }
-                                            }
-                                            .padding(.vertical, 12)
-                                            .padding(.horizontal)
-                                        }
-                                        .background(Color.clear)
-                                    }
+//                                    ForEach(ContentView.modes.indices, id: \.self) { index in
+//                                        menuItem(for: index)
+//                                    }
+                                    modesSelection
+                                    provideFeedback
                                 }
                                 .background(
                                     RoundedRectangle(cornerRadius: 24, style: .continuous)
@@ -285,33 +268,69 @@ struct ContentView: View {
             }
         }
     }
-}
-
-struct MenuItem: View {
-    var icon: String
-    var label: String
-    var subTitle: String
-    var chevron: Bool = false
     
-    var body: some View {
-        HStack {
-            Image(systemName: icon)
-                .foregroundColor(.blue)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(label)
-                    .foregroundColor(.primary)
-                Text(subTitle)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+    private var modesSelection: some View {
+        Menu {
+            ForEach(ContentView.modes.indices, id: \.self) { index in
+                let modeOption = ContentView.modes[index]
+                
+                Button(action: {
+                    mode = modeOption
+                    showingMenu = false
+                }) {
+                    HStack {
+                        Text(modeOption.title)
+                        Spacer()
+                        if mode.title == modeOption.title {
+                            Image(systemName: "checkmark")
+                                .foregroundColor(.blue)
+                        }
+                    }
+                }
             }
-            Spacer()
-            if chevron {
+        } label: {
+            HStack {
+                Image(systemName: "rectangle.stack")
+                    .foregroundColor(.blue)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Percent Calculators")
+                        .foregroundColor(.primary)
+                    Text(mode.title)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                Spacer()
                 Image(systemName: "chevron.right")
                     .foregroundColor(.secondary)
             }
+            .padding(.vertical, 12)
+            .padding(.horizontal)
+            .background(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(Color(.systemBackground).opacity(0.001)) // invisible but keeps tap area
+            )
         }
-        .padding(.vertical, 8)
-        .padding(.horizontal)
+    }
+    
+    private var provideFeedback: some View {
+        Button(action: {
+            let email = "limanoit@gmail.com"
+            let subject = "Feedback for Percent Apps"
+            let encodedSubject = subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+            let urlString = "mailto:\(email)?subject=\(encodedSubject)"
+            showingMenu = false
+        }) {
+            HStack {
+                Image(systemName: "bubble.left.and.bubble.right")
+                    .foregroundColor(.blue)
+                Text("Provide Feedback")
+                    .foregroundColor(.primary)
+                Spacer()
+            }
+            .padding(.vertical, 12)
+            .padding(.horizontal)
+        }
+        .background(Color.clear)
     }
 }
 

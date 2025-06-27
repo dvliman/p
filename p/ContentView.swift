@@ -10,7 +10,6 @@ func identity(z: Double) -> String {
 
 struct ContentView: View {
     static let modes: [(icon: String, title: String, subTitle: String, x: String, y: String, z: String, fn: ((Double, Double) -> Double)?, outputFn: ((Double) -> String)?)] = [
-        
         (
             icon: "percent",
             title: "Percent Change",
@@ -67,8 +66,6 @@ struct ContentView: View {
     @State private var mode = ContentView.modes[0]
     @State private var x = ""
     @State private var y = ""
-    @State private var result = ""
-    @FocusState private var focusedField: Field?
     
     enum Field: Hashable {
         case x
@@ -77,7 +74,8 @@ struct ContentView: View {
     }
     
     @State private var showingMenu = false
-    
+    @FocusState private var focusedField: Field?
+
     func percentValue() -> Bool {
         return mode.y == "by"
     }
@@ -128,10 +126,10 @@ struct ContentView: View {
                                         }
                                     }
                                     .background(
-                                        Rectangle()
+                                        RoundedRectangle(cornerRadius: 4, style: .continuous)
                                             .fill(Color(.systemGray6))
                                             .overlay(
-                                                Rectangle()
+                                                RoundedRectangle(cornerRadius: 4, style: .continuous)
                                                     .stroke(focusedField == .x ? Color.blue : Color.clear, lineWidth: 2)
                                             )
                                     )
@@ -171,10 +169,10 @@ struct ContentView: View {
                                         
                                     }
                                     .background(
-                                        Rectangle()
+                                        RoundedRectangle(cornerRadius: 16, style: .continuous)
                                             .fill(Color(.systemGray6))
                                             .overlay(
-                                                Rectangle()
+                                                RoundedRectangle(cornerRadius: 4, style: .continuous)
                                                     .stroke(focusedField == .y ? Color.blue : Color.clear, lineWidth: 2)
                                             )
                                     )
@@ -187,9 +185,7 @@ struct ContentView: View {
                                     
                                     let background: Color = {
                                         if let xVal = Double(x), let yVal = Double(y), let fn = mode.fn, let outputFn = mode.outputFn {
-                                            return fn(xVal, yVal) >= 0 ?
-                                            Color(.systemGreen).opacity(0.18)
-                                            : Color(.systemRed).opacity(0.18)
+                                            return fn(xVal, yVal) >= 0 ? Color(.systemGreen).opacity(0.18) : Color(.systemRed).opacity(0.18)
                                         }
                                         return Color(.systemGray6)
                                     }()
@@ -205,16 +201,15 @@ struct ContentView: View {
                                         .multilineTextAlignment(.center)
                                         .disabled(true)
                                         .font(.system(size: geometry.size.width * 0.06, weight: .medium))
-                                        .focused($focusedField, equals: .z)
                                         .keyboardType(.decimalPad)
                                         .padding(.horizontal, 16)
                                         .padding(.vertical, 16)
                                         .foregroundColor(.primary)
                                         .background(
-                                            Rectangle()
+                                            RoundedRectangle(cornerRadius: 4, style: .continuous)
                                                 .fill(background)
                                                 .overlay(
-                                                    Rectangle()
+                                                    RoundedRectangle(cornerRadius: 4, style: .continuous)
                                                         .stroke(focusedField == .z ? Color.blue : Color.clear, lineWidth: 2)
                                                 )
                                         )

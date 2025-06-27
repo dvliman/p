@@ -5,7 +5,7 @@ func percent(z: Double) -> String {
 }
 
 func identity(z: Double) -> String {
-    return String(z)
+    return String(format: "%.2f", z)
 }
 
 struct ContentView: View {
@@ -152,6 +152,8 @@ struct ContentView: View {
                                         
                                         if !y.isEmpty && percentValue() {
                                             Image(systemName: "percent")
+                                                .font(.system(size: geometry.size.width * 0.06, weight: .bold))
+                                                .symbolRenderingMode(.hierarchical)
                                                 .foregroundColor(.secondary)
                                                 .padding(.trailing, 4)
                                         }
@@ -162,14 +164,14 @@ struct ContentView: View {
                                             }) {
                                                 Image(systemName: "xmark.circle.fill")
                                                     .foregroundColor(.gray)
-                                                    .font(.title3)
+                                                   
                                             }
                                             .padding(.trailing, 8)
                                         }
                                         
                                     }
                                     .background(
-                                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                        RoundedRectangle(cornerRadius: 4, style: .continuous)
                                             .fill(Color(.systemGray6))
                                             .overlay(
                                                 RoundedRectangle(cornerRadius: 4, style: .continuous)

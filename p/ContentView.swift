@@ -102,21 +102,34 @@ struct ContentView: View {
                                         .font(.system(size: geometry.size.width * 0.04, weight: .semibold))
                                         .foregroundColor(.primary)
                                     
-                                    TextField("", text: $x)
-                                        .multilineTextAlignment(.center)
-                                        .font(.system(size: geometry.size.width * 0.045, weight: .medium))
-                                        .focused($focusedField, equals: .x)
-                                        .keyboardType(.decimalPad)
-                                        .padding(.horizontal, 16)
-                                        .padding(.vertical, 12)
-                                        .background(
-                                            Rectangle()
-                                                .fill(Color(.systemGray6))
-                                                .overlay(
-                                                    Rectangle()
-                                                        .stroke(focusedField == .x ? Color.blue : Color.clear, lineWidth: 2)
-                                                )
-                                        )
+                                    HStack {
+                                        TextField("", text: $x)
+                                            .multilineTextAlignment(.center)
+                                            .font(.system(size: geometry.size.width * 0.045, weight: .medium))
+                                            .focused($focusedField, equals: .x)
+                                            .keyboardType(.decimalPad)
+                                            .padding(.horizontal, 16)
+                                            .padding(.vertical, 12)
+                                        
+                                        if !x.isEmpty {
+                                            Button(action: {
+                                                x = ""
+                                            }) {
+                                                Image(systemName: "xmark.circle.fill")
+                                                    .foregroundColor(.gray)
+                                                    .font(.title3)
+                                            }
+                                            .padding(.trailing, 8)
+                                        }
+                                    }
+                                    .background(
+                                        Rectangle()
+                                            .fill(Color(.systemGray6))
+                                            .overlay(
+                                                Rectangle()
+                                                    .stroke(focusedField == .x ? Color.blue : Color.clear, lineWidth: 2)
+                                            )
+                                    )
                                 }
                                 
                                 VStack(alignment: .center, spacing: 8) {
@@ -124,21 +137,34 @@ struct ContentView: View {
                                         .font(.system(size: geometry.size.width * 0.04, weight: .semibold))
                                         .foregroundColor(.primary)
                                     
-                                    TextField("", text: $y)
-                                        .multilineTextAlignment(.center)
-                                        .font(.system(size: geometry.size.width * 0.045, weight: .medium))
-                                        .focused($focusedField, equals: .y)
-                                        .keyboardType(.decimalPad)
-                                        .padding(.horizontal, 16)
-                                        .padding(.vertical, 12)
-                                        .background(
-                                            Rectangle()
-                                                .fill(Color(.systemGray6))
-                                                .overlay(
-                                                    Rectangle()
-                                                        .stroke(focusedField == .y ? Color.blue : Color.clear, lineWidth: 2)
-                                                )
-                                        )
+                                    HStack {
+                                        TextField("", text: $y)
+                                            .multilineTextAlignment(.center)
+                                            .font(.system(size: geometry.size.width * 0.045, weight: .medium))
+                                            .focused($focusedField, equals: .y)
+                                            .keyboardType(.decimalPad)
+                                            .padding(.horizontal, 16)
+                                            .padding(.vertical, 12)
+                                        
+                                        if !y.isEmpty {
+                                            Button(action: {
+                                                y = ""
+                                            }) {
+                                                Image(systemName: "xmark.circle.fill")
+                                                    .foregroundColor(.gray)
+                                                    .font(.title3)
+                                            }
+                                            .padding(.trailing, 8)
+                                        }
+                                    }
+                                    .background(
+                                        Rectangle()
+                                            .fill(Color(.systemGray6))
+                                            .overlay(
+                                                Rectangle()
+                                                    .stroke(focusedField == .y ? Color.blue : Color.clear, lineWidth: 2)
+                                            )
+                                    )
                                 }
                                 
                                 VStack(alignment: .center, spacing: 8) {

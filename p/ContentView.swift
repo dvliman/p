@@ -185,14 +185,23 @@ struct ContentView: View {
                                         .font(.system(size: geometry.size.width * 0.04, weight: .semibold))
                                         .foregroundColor(.secondary)
                                     
-                                    let output: String = {
+                                    let background: Color = {
+                                        if let xVal = Double(x), let yVal = Double(y), let fn = mode.fn, let outputFn = mode.outputFn {
+                                            return fn(xVal, yVal) >= 0 ?
+                                            Color(.systemGreen).opacity(0.18)
+                                            : Color(.systemRed).opacity(0.18)
+                                        }
+                                        return Color(.systemGray6)
+                                    }()
+                                    
+                                    let formatted: String = {
                                         if let xVal = Double(x), let yVal = Double(y), let fn = mode.fn, let outputFn = mode.outputFn {
                                             return outputFn(fn(xVal, yVal))
                                         }
                                         return ""
                                     }()
                                     
-                                    TextField("", text: .constant(output))
+                                    TextField("", text: .constant(formatted))
                                         .multilineTextAlignment(.center)
                                         .disabled(true)
                                         .font(.system(size: geometry.size.width * 0.06, weight: .medium))
@@ -203,7 +212,7 @@ struct ContentView: View {
                                         .foregroundColor(.primary)
                                         .background(
                                             Rectangle()
-                                                .fill(Color(.systemGray6))
+                                                .fill(background)
                                                 .overlay(
                                                     Rectangle()
                                                         .stroke(focusedField == .z ? Color.blue : Color.clear, lineWidth: 2)

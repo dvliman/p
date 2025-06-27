@@ -4,16 +4,17 @@ func percent(z: Double) -> String {
     return String(format: "%.2f%%", z)
 }
 
-func asString(z: Double) -> String {
+func identity(z: Double) -> String {
     return String(z)
 }
 
 struct ContentView: View {
     static let modes: [(icon: String, title: String, subTitle: String, x: String, y: String, z: String, fn: ((Double, Double) -> Double)?, outputFn: ((Double) -> String)?)] = [
+        
         (
             icon: "percent",
             title: "Percent Change",
-            subTitle: "Calculate percent change between two numbers",
+            subTitle: "Amount of change in a percent",
             x: "Value",
             y: "After",
             z: "Change",
@@ -26,31 +27,31 @@ struct ContentView: View {
         (
             icon: "arrow.up",
             title: "Percent Increase",
-            subTitle: "Increase value by percentage",
+            subTitle: "Increase by a percent",
             x: "Increase",
             y: "by",
             z: "is",
             fn: { (x: Double, y: Double) -> Double in
                 x  * (1 + (y / 100))
             },
-            outputFn: asString
+            outputFn: identity
         ),
         (
             icon: "arrow.down",
             title: "Percent Decrease",
-            subTitle: "Decrease value by percentage",
+            subTitle: "Reduce by a percent",
             x: "Decrease",
             y: "by",
             z: "is",
             fn: { (x: Double, y: Double) -> Double in
                 x  * (1 - (y / 100))
             },
-            outputFn: asString
+            outputFn: identity
         ),
         (
             icon: "arrow.left.and.right",
             title: "Percent Difference",
-            subTitle: "Calculate percent difference between two numbers",
+            subTitle: "Difference as a percent",
             x: "Value 1",
             y: "Value 2",
             z: "% difference",
@@ -78,111 +79,164 @@ struct ContentView: View {
     @State private var showingMenu = false
     
     var body: some View {
-        GeometryReader { geometry in
-            ScrollView {
-                VStack() {
-                    VStack(alignment: .center, spacing: 8) {
-                        Text(mode.title)
-                            .font(.system(size: geometry.size.width * 0.065, weight: .bold, design: .rounded))
-                            .foregroundColor(.primary)
-                        
-                        Text(mode.subTitle)
-                            .font(.system(size: geometry.size.width * 0.035, weight: .medium))
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.center)
-                    }
-                    .padding(.bottom, 20)
-                    
-                    VStack(spacing: 16) {
-                        VStack(alignment: .center, spacing: 8) {
-                            Text(mode.x)
-                                .font(.system(size: geometry.size.width * 0.04, weight: .semibold))
-                                .foregroundColor(.primary)
+        NavigationView {
+            GeometryReader { geometry in
+                ZStack {
+                    ScrollView {
+                        VStack() {
+                            VStack(alignment: .center, spacing: 8) {
+                                Text(mode.title)
+                                    .font(.system(size: geometry.size.width * 0.065, weight: .bold, design: .rounded))
+                                    .foregroundColor(.primary)
+                                
+                                Text(mode.subTitle)
+                                    .font(.system(size: geometry.size.width * 0.035, weight: .medium))
+                                    .foregroundColor(.secondary)
+                                    .multilineTextAlignment(.center)
+                            }
+                            .padding(.bottom, 20)
                             
-                            TextField("", text: $x)
-                                .multilineTextAlignment(.center)
-                                .font(.system(size: geometry.size.width * 0.045, weight: .medium))
-                                .focused($focusedField, equals: .x)
-                                .keyboardType(.decimalPad)
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 12)
-                                .background(
-                                    Rectangle()
-                                        .fill(Color(.systemGray6))
-                                        .overlay(
+                            VStack(spacing: 16) {
+                                VStack(alignment: .center, spacing: 8) {
+                                    Text(mode.x)
+                                        .font(.system(size: geometry.size.width * 0.04, weight: .semibold))
+                                        .foregroundColor(.primary)
+                                    
+                                    TextField("", text: $x)
+                                        .multilineTextAlignment(.center)
+                                        .font(.system(size: geometry.size.width * 0.045, weight: .medium))
+                                        .focused($focusedField, equals: .x)
+                                        .keyboardType(.decimalPad)
+                                        .padding(.horizontal, 16)
+                                        .padding(.vertical, 12)
+                                        .background(
                                             Rectangle()
-                                                .stroke(focusedField == .x ? Color.blue : Color.clear, lineWidth: 2)
+                                                .fill(Color(.systemGray6))
+                                                .overlay(
+                                                    Rectangle()
+                                                        .stroke(focusedField == .x ? Color.blue : Color.clear, lineWidth: 2)
+                                                )
                                         )
-                                )
-                        }
-                        
-                        VStack(alignment: .center, spacing: 8) {
-                            Text(mode.y)
-                                .font(.system(size: geometry.size.width * 0.04, weight: .semibold))
-                                .foregroundColor(.primary)
-                            
-                            TextField("", text: $y)
-                                .multilineTextAlignment(.center)
-                                .font(.system(size: geometry.size.width * 0.045, weight: .medium))
-                                .focused($focusedField, equals: .y)
-                                .keyboardType(.decimalPad)
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 12)
-                                .background(
-                                    Rectangle()
-                                        .fill(Color(.systemGray6))
-                                        .overlay(
-                                            Rectangle()
-                                                .stroke(focusedField == .y ? Color.blue : Color.clear, lineWidth: 2)
-                                        )
-                                )
-                        }
-                        
-                        VStack(alignment: .center, spacing: 8) {
-                            Text(mode.z)
-                                .font(.system(size: geometry.size.width * 0.04, weight: .semibold))
-                                .foregroundColor(.primary)
-                            
-                            let output: String = {
-                                if let xVal = Double(x), let yVal = Double(y), let fn = mode.fn, let outputFn = mode.outputFn {
-                                    return outputFn(fn(xVal, yVal))
                                 }
-                                return ""
-                            }()
-                            
-                            TextField("", text: .constant(output))
-                                .multilineTextAlignment(.center)
-                                .disabled(true)
-                                .font(.system(size: geometry.size.width * 0.045, weight: .medium))
-                                .focused($focusedField, equals: .z)
-                                .keyboardType(.decimalPad)
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 12)
-                                .background(
-                                    Rectangle()
-                                        .fill(Color(.systemGray6))
-                                        .overlay(
+                                
+                                VStack(alignment: .center, spacing: 8) {
+                                    Text(mode.y)
+                                        .font(.system(size: geometry.size.width * 0.04, weight: .semibold))
+                                        .foregroundColor(.primary)
+                                    
+                                    TextField("", text: $y)
+                                        .multilineTextAlignment(.center)
+                                        .font(.system(size: geometry.size.width * 0.045, weight: .medium))
+                                        .focused($focusedField, equals: .y)
+                                        .keyboardType(.decimalPad)
+                                        .padding(.horizontal, 16)
+                                        .padding(.vertical, 12)
+                                        .background(
                                             Rectangle()
-                                                .stroke(focusedField == .z ? Color.blue : Color.clear, lineWidth: 2)
+                                                .fill(Color(.systemGray6))
+                                                .overlay(
+                                                    Rectangle()
+                                                        .stroke(focusedField == .y ? Color.blue : Color.clear, lineWidth: 2)
+                                                )
                                         )
-                                )
+                                }
+                                
+                                VStack(alignment: .center, spacing: 8) {
+                                    Text(mode.z)
+                                        .font(.system(size: geometry.size.width * 0.04, weight: .semibold))
+                                        .foregroundColor(.primary)
+                                    
+                                    let output: String = {
+                                        if let xVal = Double(x), let yVal = Double(y), let fn = mode.fn, let outputFn = mode.outputFn {
+                                            return outputFn(fn(xVal, yVal))
+                                        }
+                                        return ""
+                                    }()
+                                    
+                                    TextField("", text: .constant(output))
+                                        .multilineTextAlignment(.center)
+                                        .disabled(true)
+                                        .font(.system(size: geometry.size.width * 0.045, weight: .medium))
+                                        .focused($focusedField, equals: .z)
+                                        .keyboardType(.decimalPad)
+                                        .padding(.horizontal, 16)
+                                        .padding(.vertical, 12)
+                                        .background(
+                                            Rectangle()
+                                                .fill(Color(.systemGray6))
+                                                .overlay(
+                                                    Rectangle()
+                                                        .stroke(focusedField == .z ? Color.blue : Color.clear, lineWidth: 2)
+                                                )
+                                        )
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 40)
+                        .onAppear {
+                            focusedField = .x
                         }
                     }
-                }
-                .padding(.horizontal, 40)
-                .onAppear {
-                    focusedField = .x
+                    
+                    if showingMenu {
+                        VStack {
+                            HStack {
+                                Spacer()
+                                
+                                VStack(spacing: 0) {
+                                    ForEach(ContentView.modes.indices, id: \.self) { index in
+                                        let modeOption = ContentView.modes[index]
+                                        Button(action: {
+                                            mode = modeOption
+                                            showingMenu = false
+                                        }) {
+                                            HStack {
+                                                Image(systemName: modeOption.icon)
+                                                    .foregroundColor(.blue)
+                                                Text(modeOption.title)
+                                                    .foregroundColor(.primary)
+                                                Spacer()
+                                                if mode.title == modeOption.title {
+                                                    Image(systemName: "checkmark")
+                                                        .foregroundColor(.blue)
+                                                }
+                                            }
+                                            .padding(.vertical, 12)
+                                            .padding(.horizontal)
+                                        }
+                                        .background(Color.clear)
+                                    }
+                                }
+                                .background(
+                                    RoundedRectangle(cornerRadius: 24, style: .continuous)
+                                        .fill(Color(.systemBackground))
+                                        .shadow(color: Color.black.opacity(0.25), radius: 16, x: 0, y: 8)
+                                )
+                                .frame(maxWidth: 320)
+                            }
+                            .padding(.top, 60)
+                            .padding(.trailing, 20)
+                            .transition(.move(edge: .top).combined(with: .opacity))
+                            
+                            Spacer()
+                        }
+                    }
                 }
             }
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: { withAnimation { showingMenu.toggle() } }) {
+                    Button {
+                        withAnimation {
+                            showingMenu.toggle()
+                        }
+                    } label: {
                         Image(systemName: "info.circle")
                             .foregroundColor(.blue)
+                            .font(.title2)
                     }
                 }
             }
-            
         }
     }
 }

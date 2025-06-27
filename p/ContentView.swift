@@ -78,6 +78,10 @@ struct ContentView: View {
     
     @State private var showingMenu = false
     
+    func percentValue() -> Bool {
+        return mode.y == "by"
+    }
+    
     var body: some View {
         NavigationView {
             GeometryReader { geometry in
@@ -100,18 +104,19 @@ struct ContentView: View {
                                 VStack(alignment: .center, spacing: 8) {
                                     Text(mode.x)
                                         .font(.system(size: geometry.size.width * 0.04, weight: .semibold))
-                                        .foregroundColor(.primary)
+                                        .foregroundColor(.secondary)
                                     
                                     HStack {
                                         TextField("", text: $x)
                                             .multilineTextAlignment(.center)
-                                            .font(.system(size: geometry.size.width * 0.045, weight: .medium))
+                                            .font(.system(size: geometry.size.width * 0.06, weight: .medium))
                                             .focused($focusedField, equals: .x)
                                             .keyboardType(.decimalPad)
                                             .padding(.horizontal, 16)
-                                            .padding(.vertical, 12)
+                                            .padding(.vertical, 16)
+                                            .foregroundColor(.primary)
                                         
-                                        if !x.isEmpty {
+                                        if !x.isEmpty && focusedField == .x {
                                             Button(action: {
                                                 x = ""
                                             }) {
@@ -135,18 +140,25 @@ struct ContentView: View {
                                 VStack(alignment: .center, spacing: 8) {
                                     Text(mode.y)
                                         .font(.system(size: geometry.size.width * 0.04, weight: .semibold))
-                                        .foregroundColor(.primary)
+                                        .foregroundColor(.secondary)
                                     
                                     HStack {
                                         TextField("", text: $y)
                                             .multilineTextAlignment(.center)
-                                            .font(.system(size: geometry.size.width * 0.045, weight: .medium))
+                                            .font(.system(size: geometry.size.width * 0.06, weight: .medium))
                                             .focused($focusedField, equals: .y)
                                             .keyboardType(.decimalPad)
                                             .padding(.horizontal, 16)
-                                            .padding(.vertical, 12)
+                                            .padding(.vertical, 16)
+                                            .foregroundColor(.primary)
                                         
-                                        if !y.isEmpty {
+                                        if !y.isEmpty && percentValue() {
+                                            Image(systemName: "percent")
+                                                .foregroundColor(.secondary)
+                                                .padding(.trailing, 4)
+                                        }
+                                        
+                                        if !y.isEmpty && !percentValue() && focusedField == .y {
                                             Button(action: {
                                                 y = ""
                                             }) {
@@ -156,6 +168,7 @@ struct ContentView: View {
                                             }
                                             .padding(.trailing, 8)
                                         }
+                                        
                                     }
                                     .background(
                                         Rectangle()
@@ -170,7 +183,7 @@ struct ContentView: View {
                                 VStack(alignment: .center, spacing: 8) {
                                     Text(mode.z)
                                         .font(.system(size: geometry.size.width * 0.04, weight: .semibold))
-                                        .foregroundColor(.primary)
+                                        .foregroundColor(.secondary)
                                     
                                     let output: String = {
                                         if let xVal = Double(x), let yVal = Double(y), let fn = mode.fn, let outputFn = mode.outputFn {
@@ -182,11 +195,12 @@ struct ContentView: View {
                                     TextField("", text: .constant(output))
                                         .multilineTextAlignment(.center)
                                         .disabled(true)
-                                        .font(.system(size: geometry.size.width * 0.045, weight: .medium))
+                                        .font(.system(size: geometry.size.width * 0.06, weight: .medium))
                                         .focused($focusedField, equals: .z)
                                         .keyboardType(.decimalPad)
                                         .padding(.horizontal, 16)
-                                        .padding(.vertical, 12)
+                                        .padding(.vertical, 16)
+                                        .foregroundColor(.primary)
                                         .background(
                                             Rectangle()
                                                 .fill(Color(.systemGray6))

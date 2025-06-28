@@ -20,7 +20,7 @@ struct ContentView: View {
             z: "Change",
             fn: { (x: Double, y: Double) -> Double in
                 guard x != 0 else { return 0 }
-                return ((y - x) / y) * 100
+                return ((y - x) / x) * 100
             },
             resultFn: percent
         ),
@@ -233,10 +233,14 @@ struct ContentView: View {
                                 
                                 VStack(spacing: 0) {
                                     ForEach(ContentView.modes.indices, id: \.self) { index in
-                                        menuItem(for: index)
+                                        menuItem(index)
                                     }
                                     Divider()
-                                    provideFeedback
+                                    feedback
+                                    Divider()
+                                    share
+                                    Divider()
+                                    coffee
                                 }
                                 .background(
                                     RoundedRectangle(cornerRadius: 24, style: .continuous)
@@ -269,20 +273,24 @@ struct ContentView: View {
         }
     }
     
-    private func menuItem(for index: Int) -> some View {
-        let modeOption = ContentView.modes[index]
+    private func menuItem(_ index: Int) -> some View {
+        let selected = ContentView.modes[index]
         
-        return Button(action: {
-            mode = modeOption
+        return menuItem(icon: selected.icon, title: selected.title, selected: mode.title == selected.title, action: {
+            mode = selected
             showingMenu = false
-        }) {
+        })
+    }
+    
+    private func menuItem(icon: String, title: String, selected: Bool? = false, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
             HStack {
-                Image(systemName: modeOption.icon)
+                Image(systemName: icon)
                     .foregroundColor(.blue)
-                Text(modeOption.title)
+                Text(title)
                     .foregroundColor(.primary)
                 Spacer()
-                if mode.title == modeOption.title {
+                if selected == true {
                     Image(systemName: "checkmark")
                         .foregroundColor(.blue)
                 }
@@ -303,22 +311,38 @@ struct ContentView: View {
         }
     }
     
-    private var provideFeedback: some View {
-        Button(action: {
-            showingMenu = false
-            draftEmail()
-        }) {
-            HStack {
-                Image(systemName: "bubble.left.and.bubble.right")
-                    .foregroundColor(.blue)
-                Text("Provide Feedback")
-                    .foregroundColor(.primary)
-                Spacer()
-            }
-            .padding(.vertical, 12)
-            .padding(.horizontal)
-        }
-        .background(Color.clear)
+    private func openAppStore() {
+        let appStoreURL = URL(string: "https://apps.apple.com/app/id6747897383")!
+        UIApplication.shared.open(appStoreURL)
+    }
+    
+    private var feedback: some View {
+        return menuItem(
+            icon: "bubble",
+            title: "Feedback",
+            action: {
+                showingMenu = false
+                draftEmail()
+            })
+    }
+    
+    private var share: some View {
+        return menuItem(
+            icon: "gift",
+            title: "Share",
+            action: {
+                showingMenu = false
+                openAppStore()
+            })
+    }
+    
+    private var coffee: some View {
+        return menuItem(
+            icon: "cup.and.heat.waves",
+            title: "Buy me a coffee",
+            action: {
+                showingMenu = false
+            })
     }
 }
 

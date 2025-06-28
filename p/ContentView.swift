@@ -75,7 +75,10 @@ struct ContentView: View {
     }
     
     @State private var showingMenu = false
-    @FocusState private var focusedField: Field?
+    @FocusState private var focused: Field?
+    
+    @AppStorage("darkMode") private var darkMode: Bool = false
+    @Environment(\.colorScheme) var colorScheme
     
     func percentValue() -> Bool {
         return mode.y == "by"
@@ -93,7 +96,7 @@ struct ContentView: View {
                                     .foregroundColor(.primary)
                                 
                                 Text(mode.subTitle)
-                                    .font(.system(size: geometry.size.width * 0.035, weight: .medium))
+                                    .font(.system(size: geometry.size.width * 0.04, weight: .medium))
                                     .foregroundColor(.secondary)
                                     .multilineTextAlignment(.center)
                             }
@@ -109,18 +112,18 @@ struct ContentView: View {
                                         TextField("", text: $x)
                                             .multilineTextAlignment(.center)
                                             .font(.system(size: geometry.size.width * 0.06, weight: .medium))
-                                            .focused($focusedField, equals: .x)
+                                            .focused($focused, equals: .x)
                                             .keyboardType(.decimalPad)
                                             .padding(.horizontal, 16)
                                             .padding(.vertical, 16)
                                             .foregroundColor(.primary)
                                         
-                                        if !x.isEmpty && focusedField == .x {
+                                        if !x.isEmpty && focused == .x {
                                             Button(action: {
                                                 x = ""
                                             }) {
                                                 Image(systemName: "xmark.circle.fill")
-                                                    .foregroundColor(.gray)
+                                                    .foregroundColor(.secondary)
                                                     .font(.title3)
                                             }
                                             .padding(.trailing, 8)
@@ -128,10 +131,10 @@ struct ContentView: View {
                                     }
                                     .background(
                                         RoundedRectangle(cornerRadius: 4, style: .continuous)
-                                            .fill(Color(.systemGray6))
+                                            .fill(Color(.secondarySystemBackground))
                                             .overlay(
                                                 RoundedRectangle(cornerRadius: 4, style: .continuous)
-                                                    .stroke(focusedField == .x ? Color.blue : Color.clear, lineWidth: 2)
+                                                    .stroke(focused == .x ? Color.accentColor : Color.clear, lineWidth: 2)
                                             )
                                     )
                                 }
@@ -145,7 +148,7 @@ struct ContentView: View {
                                         TextField("", text: $y)
                                             .multilineTextAlignment(.center)
                                             .font(.system(size: geometry.size.width * 0.06, weight: .medium))
-                                            .focused($focusedField, equals: .y)
+                                            .focused($focused, equals: .y)
                                             .keyboardType(.decimalPad)
                                             .padding(.horizontal, 16)
                                             .padding(.vertical, 16)
@@ -159,13 +162,12 @@ struct ContentView: View {
                                                 .padding(.trailing, 4)
                                         }
                                         
-                                        if !y.isEmpty && !percentValue() && focusedField == .y {
+                                        if !y.isEmpty && !percentValue() && focused == .y {
                                             Button(action: {
                                                 y = ""
                                             }) {
                                                 Image(systemName: "xmark.circle.fill")
-                                                    .foregroundColor(.gray)
-                                                
+                                                    .foregroundColor(.secondary)
                                             }
                                             .padding(.trailing, 8)
                                         }
@@ -173,10 +175,10 @@ struct ContentView: View {
                                     }
                                     .background(
                                         RoundedRectangle(cornerRadius: 4, style: .continuous)
-                                            .fill(Color(.systemGray6))
+                                            .fill(Color(.secondarySystemBackground))
                                             .overlay(
                                                 RoundedRectangle(cornerRadius: 4, style: .continuous)
-                                                    .stroke(focusedField == .y ? Color.blue : Color.clear, lineWidth: 2)
+                                                    .stroke(focused == .y ? Color.accentColor : Color.clear, lineWidth: 2)
                                             )
                                     )
                                 }
@@ -198,7 +200,7 @@ struct ContentView: View {
                                             return Color(.systemGray6)
                                         }
                                         
-                                        return result > 0.0 ? Color(.systemGreen).opacity(0.18) : Color(.systemRed).opacity(0.18)
+                                        return result > 0.0 ? Color(.systemGreen).opacity(0.5) : Color(.systemRed).opacity(0.5)
                                     }()
                                     
                                     TextField("", text: .constant(mode.resultFn?(result) ?? ""))
@@ -214,7 +216,7 @@ struct ContentView: View {
                                                 .fill(background)
                                                 .overlay(
                                                     RoundedRectangle(cornerRadius: 4, style: .continuous)
-                                                        .stroke(focusedField == .z ? Color.blue : Color.clear, lineWidth: 2)
+                                                        .stroke(focused == .z ? Color.accentColor : Color.clear, lineWidth: 2)
                                                 )
                                         )
                                 }
@@ -222,7 +224,7 @@ struct ContentView: View {
                         }
                         .padding(.horizontal, 40)
                         .onAppear {
-                            focusedField = .x
+                            focused = .x
                         }
                     }
                     
@@ -236,14 +238,19 @@ struct ContentView: View {
                                         menuItem(index)
                                     }
                                     Divider()
+                                    appearance
+                                    
+                                    Divider()
                                     feedback
+                                    
                                     Divider()
                                     share
+                                    
                                     Divider()
                                     coffee
                                 }
                                 .background(
-                                    RoundedRectangle(cornerRadius: 24, style: .continuous)
+                                    RoundedRectangle(cornerRadius: 16, style: .continuous)
                                         .fill(Color(.systemBackground))
                                         .shadow(color: Color.black.opacity(0.25), radius: 16, x: 0, y: 8)
                                 )
@@ -264,13 +271,14 @@ struct ContentView: View {
                     Button {
                         showingMenu.toggle()
                     } label: {
-                        Image(systemName: "info.circle")
-                            .foregroundColor(.blue)
-                            .font(.title2)
+                        Image(systemName: "ellipsis")
+                            .foregroundColor(.accentColor)
+                            .font(.title3)
                     }
                 }
             }
         }
+        .preferredColorScheme(darkMode ? .dark : .light)
     }
     
     private func menuItem(_ index: Int) -> some View {
@@ -286,7 +294,7 @@ struct ContentView: View {
         Button(action: action) {
             HStack {
                 Image(systemName: icon)
-                    .foregroundColor(.blue)
+                    .foregroundColor(.accentColor)
                 Text(title)
                     .foregroundColor(.primary)
                 Spacer()
@@ -302,19 +310,26 @@ struct ContentView: View {
     }
     
     private func draftEmail() {
-        let email = "limanoit@gmail.com"
-        let subject = "Feedback for Percent Apps"
-        let encodedSubject = subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-        let urlString = "mailto:\(email)?subject=\(encodedSubject)"
-        if let url = URL(string: urlString) {
-            UIApplication.shared.open(url)
-        }
+        let url = URL(string: "mailto:limanoit@gmail.com?subject=Feedback%20for%20Percent%20")!
+        UIApplication.shared.open(url)
     }
     
     private func openAppStore() {
         let appStoreURL = URL(string: "https://apps.apple.com/app/id6747897383")!
         UIApplication.shared.open(appStoreURL)
     }
+    
+    private var appearance: some View {
+        menuItem(
+            icon: darkMode ? "sun.max.fill" : "moon.fill",
+            title: darkMode ? "Light Mode" : "Dark Mode",
+            action: {
+                showingMenu = false
+                darkMode.toggle()
+            }
+        )
+    }
+    
     
     private var feedback: some View {
         return menuItem(

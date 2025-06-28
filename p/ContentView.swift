@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 func percent(z: Double) -> String {
     return String(format: "%.2f%%", z)
@@ -9,7 +10,7 @@ func identity(z: Double) -> String {
 }
 
 struct ContentView: View {
-    static let modes: [(icon: String, title: String, subTitle: String, x: String, y: String, z: String, fn: ((Double, Double) -> Double)?, outputFn: ((Double) -> String)?)] = [
+    static let modes: [(icon: String, title: String, subTitle: String, x: String, y: String, z: String, fn: ((Double, Double) -> Double)?, resultFn: ((Double) -> String)?)] = [
         (
             icon: "percent",
             title: "Percent Change",
@@ -21,7 +22,7 @@ struct ContentView: View {
                 guard x != 0 else { return 0 }
                 return ((y - x) / y) * 100
             },
-            outputFn: percent
+            resultFn: percent
         ),
         (
             icon: "arrow.up",
@@ -33,7 +34,7 @@ struct ContentView: View {
             fn: { (x: Double, y: Double) -> Double in
                 x  * (1 + (y / 100))
             },
-            outputFn: identity
+            resultFn: identity
         ),
         (
             icon: "arrow.down",
@@ -45,7 +46,7 @@ struct ContentView: View {
             fn: { (x: Double, y: Double) -> Double in
                 x  * (1 - (y / 100))
             },
-            outputFn: identity
+            resultFn: identity
         ),
         (
             icon: "arrow.left.and.right",
@@ -59,7 +60,7 @@ struct ContentView: View {
                 let average = (x + y) / 2
                 return (diff / average) * 100
             },
-            outputFn: percent
+            resultFn: percent
         )
     ]
     
@@ -185,21 +186,22 @@ struct ContentView: View {
                                         .font(.system(size: geometry.size.width * 0.04, weight: .semibold))
                                         .foregroundColor(.secondary)
                                     
+                                    let result: Double = {
+                                        if let xVal = Double(x), let yVal = Double(y), let fn = mode.fn {
+                                            return fn(xVal, yVal)
+                                        }
+                                        return 0.0
+                                    }()
+                                    
                                     let background: Color = {
-                                        if let xVal = Double(x), let yVal = Double(y), let fn = mode.fn, let outputFn = mode.outputFn {
-                                            return fn(xVal, yVal) >= 0 ? Color(.systemGreen).opacity(0.18) : Color(.systemRed).opacity(0.18)
+                                        if result == 0.0 {
+                                            return Color(.systemGray6)
                                         }
-                                        return Color(.systemGray6)
+                                        
+                                        return result > 0.0 ? Color(.systemGreen).opacity(0.18) : Color(.systemRed).opacity(0.18)
                                     }()
                                     
-                                    let formatted: String = {
-                                        if let xVal = Double(x), let yVal = Double(y), let fn = mode.fn, let outputFn = mode.outputFn {
-                                            return outputFn(fn(xVal, yVal))
-                                        }
-                                        return ""
-                                    }()
-                                    
-                                    TextField("", text: .constant(formatted))
+                                    TextField("", text: .constant(mode.resultFn?(result) ?? ""))
                                         .multilineTextAlignment(.center)
                                         .disabled(true)
                                         .font(.system(size: geometry.size.width * 0.06, weight: .medium))
@@ -256,9 +258,7 @@ struct ContentView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
-                        withAnimation {
-                            showingMenu.toggle()
-                        }
+                        showingMenu.toggle()
                     } label: {
                         Image(systemName: "info.circle")
                             .foregroundColor(.blue)
@@ -293,13 +293,20 @@ struct ContentView: View {
         .background(Color.clear)
     }
     
+    private func draftEmail() {
+        let email = "limanoit@gmail.com"
+        let subject = "Feedback for Percent Apps"
+        let encodedSubject = subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        let urlString = "mailto:\(email)?subject=\(encodedSubject)"
+        if let url = URL(string: urlString) {
+            UIApplication.shared.open(url)
+        }
+    }
+    
     private var provideFeedback: some View {
         Button(action: {
-            let email = "limanoit@gmail.com"
-            let subject = "Feedback for Percent Apps"
-            let encodedSubject = subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-            let urlString = "mailto:\(email)?subject=\(encodedSubject)"
             showingMenu = false
+            draftEmail()
         }) {
             HStack {
                 Image(systemName: "bubble.left.and.bubble.right")

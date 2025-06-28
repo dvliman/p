@@ -67,14 +67,15 @@ struct ContentView: View {
     @State private var mode = ContentView.modes[0]
     @State private var x = ""
     @State private var y = ""
-    
+    @State private var showCopied = false
+    @State private var showMenu = false
+
     enum Field: Hashable {
         case x
         case y
         case z
     }
     
-    @State private var showingMenu = false
     @FocusState private var focused: Field?
     
     @AppStorage("darkMode") private var darkMode: Bool = false
@@ -203,22 +204,58 @@ struct ContentView: View {
                                         return result > 0.0 ? Color(.systemGreen).opacity(0.5) : Color(.systemRed).opacity(0.5)
                                     }()
                                     
-                                    TextField("", text: .constant(mode.resultFn?(result) ?? ""))
-                                        .multilineTextAlignment(.center)
-                                        .disabled(true)
-                                        .font(.system(size: geometry.size.width * 0.06, weight: .medium))
-                                        .keyboardType(.decimalPad)
-                                        .padding(.horizontal, 16)
-                                        .padding(.vertical, 16)
-                                        .foregroundColor(.primary)
-                                        .background(
-                                            RoundedRectangle(cornerRadius: 4, style: .continuous)
-                                                .fill(background)
-                                                .overlay(
-                                                    RoundedRectangle(cornerRadius: 4, style: .continuous)
-                                                        .stroke(focused == .z ? Color.accentColor : Color.clear, lineWidth: 2)
+                                    let formatted: String = {
+                                        if let resultFn = mode.resultFn {
+                                            return resultFn(result)
+                                        }
+                                        return ""
+                                    }()
+                                    
+                                    ZStack {
+                                        TextField("", text: .constant(formatted))
+                                            .multilineTextAlignment(.center)
+                                            .disabled(true)
+                                            .font(.system(size: geometry.size.width * 0.06, weight: .medium))
+                                            .keyboardType(.decimalPad)
+                                            .padding(.horizontal, 16)
+                                            .padding(.vertical, 16)
+                                            .foregroundColor(.primary)
+                                            .background(
+                                                RoundedRectangle(cornerRadius: 4, style: .continuous)
+                                                    .fill(background)
+                                                    .overlay(
+                                                        RoundedRectangle(cornerRadius: 4, style: .continuous)
+                                                            .stroke(focused == .z ? Color.accentColor : Color.clear, lineWidth: 2)
+                                                    )
+                                            )
+                                            .contentShape(Rectangle())
+                                            .onTapGesture {
+                                                UIPasteboard.general.string = formatted
+                                                
+                                                showCopied = true
+                                                DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+                                                    showCopied = false
+                                                }
+                                            }
+                                        
+                                        if showCopied {
+                                            Text("Copied!")
+                                                .font(.system(size: geometry.size.width * 0.045, weight: .bold))
+                                                .foregroundColor(.primary)
+                                                .padding(8)
+                                                .background(
+                                                    RoundedRectangle(cornerRadius: 8)
+                                                        .fill(Color(.systemBackground).opacity(0.9))
                                                 )
-                                        )
+                                                .transition(.opacity)
+                                        }
+                                    }
+                                    .animation(.easeInOut(duration: 0.2), value: showCopied)
+                                    
+                                    
+                                    Text("Tap to copy")
+                                        .font(.system(size: geometry.size.width * 0.04, weight: .semibold))
+                                        .foregroundColor(.secondary)
                                 }
                             }
                         }
@@ -228,7 +265,7 @@ struct ContentView: View {
                         }
                     }
                     
-                    if showingMenu {
+                    if showMenu {
                         VStack {
                             HStack {
                                 Spacer()
@@ -269,7 +306,7 @@ struct ContentView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
-                        showingMenu.toggle()
+                        showMenu.toggle()
                     } label: {
                         Image(systemName: "ellipsis")
                             .foregroundColor(.accentColor)
@@ -286,7 +323,7 @@ struct ContentView: View {
         
         return menuItem(icon: selected.icon, title: selected.title, selected: mode.title == selected.title, action: {
             mode = selected
-            showingMenu = false
+            showMenu = false
         })
     }
     
@@ -324,19 +361,18 @@ struct ContentView: View {
             icon: darkMode ? "sun.max.fill" : "moon.fill",
             title: darkMode ? "Light Mode" : "Dark Mode",
             action: {
-                showingMenu = false
+                showMenu = false
                 darkMode.toggle()
             }
         )
     }
-    
     
     private var feedback: some View {
         return menuItem(
             icon: "bubble",
             title: "Feedback",
             action: {
-                showingMenu = false
+                showMenu = false
                 draftEmail()
             })
     }
@@ -346,7 +382,7 @@ struct ContentView: View {
             icon: "gift",
             title: "Share",
             action: {
-                showingMenu = false
+                showMenu = false
                 openAppStore()
             })
     }
@@ -356,7 +392,7 @@ struct ContentView: View {
             icon: "cup.and.heat.waves",
             title: "Buy me a coffee",
             action: {
-                showingMenu = false
+                showMenu = false
             })
     }
 }

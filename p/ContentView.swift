@@ -69,7 +69,7 @@ struct ContentView: View {
     @State private var y = ""
     @State private var showCopied = false
     @State private var showMenu = false
-
+    
     enum Field: Hashable {
         case x
         case y
@@ -337,23 +337,13 @@ struct ContentView: View {
                 Spacer()
                 if selected == true {
                     Image(systemName: "checkmark")
-                        .foregroundColor(.blue)
+                        .foregroundColor(.accentColor)
                 }
             }
             .padding(.vertical, 12)
             .padding(.horizontal)
         }
         .background(Color.clear)
-    }
-    
-    private func draftEmail() {
-        let url = URL(string: "mailto:limanoit@gmail.com?subject=Feedback%20for%20Percent%20")!
-        UIApplication.shared.open(url)
-    }
-    
-    private func openAppStore() {
-        let appStoreURL = URL(string: "https://apps.apple.com/app/id6747897383")!
-        UIApplication.shared.open(appStoreURL)
     }
     
     private var appearance: some View {
@@ -373,7 +363,9 @@ struct ContentView: View {
             title: "Feedback",
             action: {
                 showMenu = false
-                draftEmail()
+                
+                let url = URL(string: "mailto:limanoit@gmail.com?subject=Feedback%20for%20Percent%20")!
+                UIApplication.shared.open(url)
             })
     }
     
@@ -383,7 +375,9 @@ struct ContentView: View {
             title: "Share",
             action: {
                 showMenu = false
-                openAppStore()
+                
+                let appStoreURL = URL(string: "https://apps.apple.com/app/id6747897383")!
+                UIApplication.shared.open(appStoreURL)
             })
     }
     

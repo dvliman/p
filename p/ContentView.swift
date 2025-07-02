@@ -59,7 +59,7 @@ struct ContentView: View {
             fn: { (x: Double, y: Double) -> Double in
                 return x / y
             },
-            resultFn: percent
+            resultFn: identity
         )
     ]
     
@@ -85,226 +85,251 @@ struct ContentView: View {
     }
     
     var body: some View {
-        NavigationView {
-            GeometryReader { geometry in
-                ZStack {
-                    ScrollView {
-                        VStack() {
-                            VStack(alignment: .center, spacing: 8) {
-                                Text(mode.title)
-                                    .font(.system(size: geometry.size.width * 0.065, weight: .bold, design: .rounded))
-                                    .foregroundColor(.primary)
-                                
-                                Text(mode.subTitle)
-                                    .font(.system(size: geometry.size.width * 0.04, weight: .medium))
-                                    .foregroundColor(.secondary)
-                                    .multilineTextAlignment(.center)
-                            }
-                            .padding(.bottom, 20)
-                            
-                            VStack(spacing: 16) {
-                                VStack(alignment: .center, spacing: 8) {
-                                    Text(mode.x)
-                                        .font(.system(size: geometry.size.width * 0.04, weight: .semibold))
-                                        .foregroundColor(.secondary)
-                                    
-                                    HStack {
-                                        TextField("", text: $x)
-                                            .multilineTextAlignment(.center)
-                                            .font(.system(size: geometry.size.width * 0.06, weight: .medium))
-                                            .focused($focused, equals: .x)
-                                            .keyboardType(.decimalPad)
-                                            .padding(.horizontal, 16)
-                                            .padding(.vertical, 16)
-                                            .foregroundColor(.primary)
-                                        
-                                        if !x.isEmpty && focused == .x {
-                                            Button(action: {
-                                                x = ""
-                                            }) {
-                                                Image(systemName: "xmark.circle.fill")
-                                                    .foregroundColor(.secondary)
-                                                    .font(.title3)
-                                            }
-                                            .padding(.trailing, 8)
-                                        }
-                                    }
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 4, style: .continuous)
-                                            .fill(Color(.secondarySystemBackground))
-                                            .overlay(
-                                                RoundedRectangle(cornerRadius: 4, style: .continuous)
-                                                    .stroke(focused == .x ? Color.accentColor : Color.clear, lineWidth: 2)
-                                            )
-                                    )
-                                }
-                                
-                                VStack(alignment: .center, spacing: 8) {
-                                    Text(mode.y)
-                                        .font(.system(size: geometry.size.width * 0.04, weight: .semibold))
-                                        .foregroundColor(.secondary)
-                                    
-                                    HStack {
-                                        TextField("", text: $y)
-                                            .multilineTextAlignment(.center)
-                                            .font(.system(size: geometry.size.width * 0.06, weight: .medium))
-                                            .focused($focused, equals: .y)
-                                            .keyboardType(.decimalPad)
-                                            .padding(.horizontal, 16)
-                                            .padding(.vertical, 16)
-                                            .foregroundColor(.primary)
-                                        
-                                        if !y.isEmpty && percentValue() {
-                                            Image(systemName: "percent")
-                                                .font(.system(size: geometry.size.width * 0.06, weight: .bold))
-                                                .symbolRenderingMode(.hierarchical)
-                                                .foregroundColor(.secondary)
-                                                .padding(.trailing, 4)
-                                        }
-                                        
-                                        if !y.isEmpty && !percentValue() && focused == .y {
-                                            Button(action: {
-                                                y = ""
-                                            }) {
-                                                Image(systemName: "xmark.circle.fill")
-                                                    .foregroundColor(.secondary)
-                                            }
-                                            .padding(.trailing, 8)
-                                        }
-                                        
-                                    }
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 4, style: .continuous)
-                                            .fill(Color(.secondarySystemBackground))
-                                            .overlay(
-                                                RoundedRectangle(cornerRadius: 4, style: .continuous)
-                                                    .stroke(focused == .y ? Color.accentColor : Color.clear, lineWidth: 2)
-                                            )
-                                    )
-                                }
-                                
-                                VStack(alignment: .center, spacing: 8) {
-                                    Text(mode.z)
-                                        .font(.system(size: geometry.size.width * 0.04, weight: .semibold))
-                                        .foregroundColor(.secondary)
-                                    
-                                    let result: Double = {
-                                        if let xVal = Double(x), let yVal = Double(y), let fn = mode.fn {
-                                            return fn(xVal, yVal)
-                                        }
-                                        return 0.0
-                                    }()
-                                    
-                                    let background: Color = {
-                                        if result == 0.0 {
-                                            return Color(.systemGray6)
-                                        }
-                                        
-                                        return result > 0.0 ? Color(.systemGreen).opacity(0.5) : Color(.systemRed).opacity(0.5)
-                                    }()
-                                    
-                                    let formatted: String = {
-                                        if let resultFn = mode.resultFn {
-                                            return resultFn(result)
-                                        }
-                                        return ""
-                                    }()
-                                    
-                                    ZStack {
-                                        TextField("", text: .constant(formatted))
-                                            .multilineTextAlignment(.center)
-                                            .disabled(true)
-                                            .font(.system(size: geometry.size.width * 0.06, weight: .medium))
-                                            .keyboardType(.decimalPad)
-                                            .padding(.horizontal, 16)
-                                            .padding(.vertical, 16)
-                                            .foregroundColor(.primary)
-                                            .background(
-                                                RoundedRectangle(cornerRadius: 4, style: .continuous)
-                                                    .fill(background)
-                                                    .overlay(
-                                                        RoundedRectangle(cornerRadius: 4, style: .continuous)
-                                                            .stroke(focused == .z ? Color.accentColor : Color.clear, lineWidth: 2)
-                                                    )
-                                            )
-                                            .contentShape(Rectangle())
-                                            .onTapGesture {
-                                                UIPasteboard.general.string = formatted
-                                                
-                                                showCopied = true
-                                                DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
-                                                    showCopied = false
-                                                }
-                                            }
-                                        
-                                        if showCopied {
-                                            Text("Copied!")
-                                                .font(.system(size: geometry.size.width * 0.045, weight: .bold))
-                                                .foregroundColor(.primary)
-                                                .padding(8)
-                                                .background(
-                                                    RoundedRectangle(cornerRadius: 8)
-                                                        .fill(Color(.systemBackground).opacity(0.9))
-                                                )
-                                                .transition(.opacity)
-                                        }
-                                    }
-                                    .animation(.easeInOut(duration: 0.2), value: showCopied)
-                                    
-                                    
-                                    Text("Tap to copy")
-                                        .font(.system(size: geometry.size.width * 0.04, weight: .semibold))
-                                        .foregroundColor(.secondary)
-                                }
-                            }
-                        }
-                        .padding(.horizontal, 40)
-                        .onAppear {
-                            focused = .x
-                        }
-                    }
+        NavigationStack {
+            mainContent()
+                .toolbar {
+                    menuToolbarItem
                     
-                    if showMenu {
-                        VStack {
-                            HStack {
-                                Spacer()
+                }
+                .navigationDestination(isPresented: $showBuyMeACoffee) {
+                    BuyMeACoffee()
+                }
+        }
+        
+        .preferredColorScheme(darkMode ? .dark : .light)
+    }
+    
+    @ViewBuilder
+    private func mainContent() -> some View {
+        GeometryReader { geometry in
+            ZStack {
+                ScrollView {
+                    VStack() {
+                        VStack(alignment: .center, spacing: 8) {
+                            Text(mode.title)
+                                .font(.system(size: geometry.size.width * 0.065, weight: .bold, design: .rounded))
+                                .foregroundColor(.primary)
+                            
+                            Text(mode.subTitle)
+                                .font(.system(size: geometry.size.width * 0.04, weight: .medium))
+                                .foregroundColor(.secondary)
+                                .multilineTextAlignment(.center)
+                        }
+                        .padding(.bottom, 20)
+                        
+                        VStack(spacing: 16) {
+                            VStack(alignment: .center, spacing: 8) {
+                                Text(mode.x)
+                                    .font(.system(size: geometry.size.width * 0.04, weight: .semibold))
+                                    .foregroundColor(.secondary)
                                 
-                                VStack(spacing: 0) {
-                                    ForEach(ContentView.modes.indices, id: \.self) { index in
-                                        menuItem(index)
+                                HStack {
+                                    TextField("", text: $x)
+                                        .multilineTextAlignment(.center)
+                                        .font(.system(size: geometry.size.width * 0.06, weight: .medium))
+                                        .focused($focused, equals: .x)
+                                        .keyboardType(.decimalPad)
+                                        .padding(.horizontal, 16)
+                                        .padding(.vertical, 16)
+                                        .foregroundColor(.primary)
+                                    
+                                    if !x.isEmpty && focused == .x {
+                                        Button(action: {
+                                            x = ""
+                                        }) {
+                                            Image(systemName: "xmark.circle.fill")
+                                                .foregroundColor(.secondary)
+                                                .font(.title3)
+                                        }
+                                        .padding(.trailing, 8)
                                     }
-                                    Divider()
-                                    appearance
-                                    
-                                    Divider()
-                                    feedback
-                                    
-                                    Divider()
-                                    share
-                                    
-                                    Divider()
-                                    coffee
                                 }
                                 .background(
-                                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                        .fill(Color(.systemBackground))
-                                        .shadow(color: Color.black.opacity(0.25), radius: 16, x: 0, y: 8)
+                                    RoundedRectangle(cornerRadius: 4, style: .continuous)
+                                        .fill(Color(.secondarySystemBackground))
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 4, style: .continuous)
+                                                .stroke(focused == .x ? Color.accentColor : Color.clear, lineWidth: 2)
+                                        )
                                 )
-                                .frame(maxWidth: 320)
                             }
-                            .padding(.top, 20)
-                            //                            .padding(.trailing, 20)
-                            .transition(.move(edge: .top).combined(with: .opacity))
                             
-                            Spacer()
+                            VStack(alignment: .center, spacing: 8) {
+                                Text(mode.y)
+                                    .font(.system(size: geometry.size.width * 0.04, weight: .semibold))
+                                    .foregroundColor(.secondary)
+                                
+                                HStack {
+                                    TextField("", text: $y)
+                                        .multilineTextAlignment(.center)
+                                        .font(.system(size: geometry.size.width * 0.06, weight: .medium))
+                                        .focused($focused, equals: .y)
+                                        .keyboardType(.decimalPad)
+                                        .padding(.horizontal, 16)
+                                        .padding(.vertical, 16)
+                                        .foregroundColor(.primary)
+                                    
+                                    if !y.isEmpty && percentValue() {
+                                        Image(systemName: "percent")
+                                            .font(.system(size: geometry.size.width * 0.06, weight: .bold))
+                                            .symbolRenderingMode(.hierarchical)
+                                            .foregroundColor(.secondary)
+                                            .padding(.trailing, 4)
+                                    }
+                                    
+                                    if !y.isEmpty && !percentValue() && focused == .y {
+                                        Button(action: {
+                                            y = ""
+                                        }) {
+                                            Image(systemName: "xmark.circle.fill")
+                                                .foregroundColor(.secondary)
+                                        }
+                                        .padding(.trailing, 8)
+                                    }
+                                    
+                                }
+                                .background(
+                                    RoundedRectangle(cornerRadius: 4, style: .continuous)
+                                        .fill(Color(.secondarySystemBackground))
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 4, style: .continuous)
+                                                .stroke(focused == .y ? Color.accentColor : Color.clear, lineWidth: 2)
+                                        )
+                                )
+                            }
+                            
+                            VStack(alignment: .center, spacing: 8) {
+                                Text(mode.z)
+                                    .font(.system(size: geometry.size.width * 0.04, weight: .semibold))
+                                    .foregroundColor(.secondary)
+                                
+                                let result: Double = {
+                                    if let xVal = Double(x), let yVal = Double(y), let fn = mode.fn {
+                                        return fn(xVal, yVal)
+                                    }
+                                    return 0.0
+                                }()
+                                
+                                let background: Color = {
+                                    if result == 0.0 {
+                                        return Color(.systemGray6)
+                                    }
+                                    
+                                    return result > 0.0 ? Color(.systemGreen).opacity(0.5) : Color(.systemRed).opacity(0.5)
+                                }()
+                                
+                                let formatted: String = {
+                                    if let resultFn = mode.resultFn {
+                                        return resultFn(result)
+                                    }
+                                    return ""
+                                }()
+                                
+                                ZStack {
+                                    TextField("", text: .constant(formatted))
+                                        .multilineTextAlignment(.center)
+                                        .disabled(true)
+                                        .font(.system(size: geometry.size.width * 0.06, weight: .medium))
+                                        .keyboardType(.decimalPad)
+                                        .padding(.horizontal, 16)
+                                        .padding(.vertical, 16)
+                                        .foregroundColor(.primary)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 4, style: .continuous)
+                                                .fill(background)
+                                                .overlay(
+                                                    RoundedRectangle(cornerRadius: 4, style: .continuous)
+                                                        .stroke(focused == .z ? Color.accentColor : Color.clear, lineWidth: 2)
+                                                )
+                                        )
+                                        .contentShape(Rectangle())
+                                        .onTapGesture {
+                                            UIPasteboard.general.string = formatted
+                                            
+                                            showCopied = true
+                                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+                                                showCopied = false
+                                            }
+                                        }
+                                    
+                                    if showCopied {
+                                        Text("Copied!")
+                                            .font(.system(size: geometry.size.width * 0.045, weight: .bold))
+                                            .foregroundColor(.primary)
+                                            .padding(8)
+                                            .background(
+                                                RoundedRectangle(cornerRadius: 8)
+                                                    .fill(Color(.systemBackground).opacity(0.9))
+                                            )
+                                            .transition(.opacity)
+                                    }
+                                }
+                                .animation(.easeInOut(duration: 0.2), value: showCopied)
+                                
+                                
+                                Text("Tap to copy")
+                                    .font(.system(size: geometry.size.width * 0.04, weight: .semibold))
+                                    .foregroundColor(.secondary)
+                            }
                         }
                     }
+                    .padding(.horizontal, 40)
+                    .onAppear {
+                        focused = .x
+                    }
+                }
+                
+                if showMenu {
+                    menuOptions()
                 }
             }
-
-            
         }
-        .preferredColorScheme(darkMode ? .dark : .light)
+    }
+    
+    private var menuToolbarItem: some ToolbarContent {
+        ToolbarItem(placement: .navigationBarTrailing) {
+            Button {
+                showMenu.toggle()
+            } label: {
+                Image(systemName: "ellipsis")
+                    .foregroundColor(.accentColor)
+                    .font(.title3)
+            }
+        }
+    }
+    
+    private func menuOptions() -> some View {
+        VStack {
+            HStack {
+                Spacer()
+                
+                VStack(spacing: 0) {
+                    ForEach(ContentView.modes.indices, id: \.self) { index in
+                        menuItem(index)
+                    }
+                    Divider()
+                    appearance
+                    
+                    Divider()
+                    feedback
+                    
+                    Divider()
+                    share
+                    
+                    Divider()
+                    coffee
+                }
+                .background(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .fill(Color(.systemBackground))
+                        .shadow(color: Color.black.opacity(0.25), radius: 16, x: 0, y: 8)
+                )
+                .frame(maxWidth: 320)
+            }
+            .transition(.move(edge: .top).combined(with: .opacity))
+            
+            Spacer()
+        }
     }
     
     private func menuItem(_ index: Int) -> some View {

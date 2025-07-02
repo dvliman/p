@@ -1,5 +1,6 @@
 import SwiftUI
 import UIKit
+import FirebaseAnalytics
 
 func percent(z: Double) -> String {
     return String(format: "%.2f%%", z)
@@ -49,16 +50,14 @@ struct ContentView: View {
             resultFn: identity
         ),
         (
-            icon: "arrow.left.and.right",
-            title: "Percent Difference",
-            subTitle: "Difference as a percent",
-            x: "Value 1",
-            y: "Value 2",
-            z: "% difference",
+            icon: "basket",
+            title: "Shares",
+            subTitle: "Shares by amount",
+            x: "Capital",
+            y: "Price per share",
+            z: "# of shares",
             fn: { (x: Double, y: Double) -> Double in
-                let diff = abs(x - y)
-                let average = (x + y) / 2
-                return (diff / average) * 100
+                return x / y
             },
             resultFn: percent
         )
@@ -69,6 +68,7 @@ struct ContentView: View {
     @State private var y = ""
     @State private var showCopied = false
     @State private var showMenu = false
+    @State private var showBuyMeACoffee = false
     
     enum Field: Hashable {
         case x
@@ -79,7 +79,6 @@ struct ContentView: View {
     @FocusState private var focused: Field?
     
     @AppStorage("darkMode") private var darkMode: Bool = false
-    @Environment(\.colorScheme) var colorScheme
     
     func percentValue() -> Bool {
         return mode.y == "by"
@@ -293,8 +292,8 @@ struct ContentView: View {
                                 )
                                 .frame(maxWidth: 320)
                             }
-                            .padding(.top, 60)
-                            .padding(.trailing, 20)
+                            .padding(.top, 20)
+                            //                            .padding(.trailing, 20)
                             .transition(.move(edge: .top).combined(with: .opacity))
                             
                             Spacer()
@@ -302,18 +301,8 @@ struct ContentView: View {
                     }
                 }
             }
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        showMenu.toggle()
-                    } label: {
-                        Image(systemName: "ellipsis")
-                            .foregroundColor(.accentColor)
-                            .font(.title3)
-                    }
-                }
-            }
+
+            
         }
         .preferredColorScheme(darkMode ? .dark : .light)
     }
@@ -387,6 +376,7 @@ struct ContentView: View {
             title: "Buy me a coffee",
             action: {
                 showMenu = false
+                showBuyMeACoffee = true
             })
     }
 }

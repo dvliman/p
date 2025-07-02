@@ -276,6 +276,7 @@ struct ContentView: View {
                     .padding(.horizontal, 40)
                     .onAppear {
                         focused = .x
+                        Analytics.logEvent("AppStart", parameters: nil)
                     }
                 }
                 
@@ -336,6 +337,11 @@ struct ContentView: View {
         let selected = ContentView.modes[index]
         
         return menuItem(icon: selected.icon, title: selected.title, selected: mode.title == selected.title, action: {
+            
+            Analytics.logEvent("SwitchMode", parameters: [
+                "before": mode.title,
+                "after": selected.title
+            ])
             mode = selected
             showMenu = false
         })
@@ -367,6 +373,8 @@ struct ContentView: View {
             action: {
                 showMenu = false
                 darkMode.toggle()
+                
+                Analytics.logEvent("ToggleAppearance", parameters: nil)
             }
         )
     }
@@ -376,8 +384,9 @@ struct ContentView: View {
             icon: "bubble",
             title: "Feedback",
             action: {
-                showMenu = false
+                Analytics.logEvent("DraftingFeedback", parameters: nil)
                 
+                showMenu = false
                 let url = URL(string: "mailto:limanoit@gmail.com?subject=Feedback%20for%20Percent%20")!
                 UIApplication.shared.open(url)
             })
@@ -388,6 +397,8 @@ struct ContentView: View {
             icon: "gift",
             title: "Share",
             action: {
+                Analytics.logEvent("SharingAppStore", parameters: nil)
+                
                 showMenu = false
                 
                 let appStoreURL = URL(string: "https://apps.apple.com/app/id6747897383")!
@@ -400,6 +411,8 @@ struct ContentView: View {
             icon: "cup.and.heat.waves",
             title: "Buy me a coffee",
             action: {
+                Analytics.logEvent("BuyingCoffee", parameters: nil)
+                
                 showMenu = false
                 showBuyMeACoffee = true
             })

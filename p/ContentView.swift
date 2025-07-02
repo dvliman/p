@@ -10,6 +10,14 @@ func identity(z: Double) -> String {
     return String(format: "%.2f", z)
 }
 
+func eventName(_ input: String) -> String {
+    return input
+        .trimmingCharacters(in: .whitespacesAndNewlines)
+        .lowercased()
+        .replacingOccurrences(of: "[^a-z0-9]+", with: "_", options: .regularExpression)
+        .trimmingCharacters(in: CharacterSet(charactersIn: "_"))
+}
+
 struct ContentView: View {
     static let modes: [(icon: String, title: String, subTitle: String, x: String, y: String, z: String, fn: ((Double, Double) -> Double)?, resultFn: ((Double) -> String)?)] = [
         (
@@ -76,13 +84,15 @@ struct ContentView: View {
         case z
     }
     
+    func percentValue() -> Bool {
+        return mode.y == "by"
+    }
+    
     @FocusState private var focused: Field?
     
     @AppStorage("darkMode") private var darkMode: Bool = false
     
-    func percentValue() -> Bool {
-        return mode.y == "by"
-    }
+    
     
     var body: some View {
         NavigationStack {
@@ -276,7 +286,7 @@ struct ContentView: View {
                     .padding(.horizontal, 40)
                     .onAppear {
                         focused = .x
-                        Analytics.logEvent("AppStart", parameters: nil)
+                        Analytics.logEvent("main_content_appear", parameters: nil)
                     }
                 }
                 
@@ -338,10 +348,12 @@ struct ContentView: View {
         
         return menuItem(icon: selected.icon, title: selected.title, selected: mode.title == selected.title, action: {
             
-            Analytics.logEvent("SwitchMode", parameters: [
+            Analytics.logEvent("switch_mode", parameters: [
                 "before": mode.title,
                 "after": selected.title
             ])
+            Analytics.logEvent(eventName(selected.title), parameters: nil)
+            
             mode = selected
             showMenu = false
         })
@@ -374,7 +386,7 @@ struct ContentView: View {
                 showMenu = false
                 darkMode.toggle()
                 
-                Analytics.logEvent("ToggleAppearance", parameters: nil)
+                Analytics.logEvent("toggle_appearance", parameters: nil)
             }
         )
     }
@@ -384,7 +396,7 @@ struct ContentView: View {
             icon: "bubble",
             title: "Feedback",
             action: {
-                Analytics.logEvent("DraftingFeedback", parameters: nil)
+                Analytics.logEvent("drafting_feedback", parameters: nil)
                 
                 showMenu = false
                 let url = URL(string: "mailto:limanoit@gmail.com?subject=Feedback%20for%20Percent%20")!
@@ -397,7 +409,7 @@ struct ContentView: View {
             icon: "gift",
             title: "Share",
             action: {
-                Analytics.logEvent("SharingAppStore", parameters: nil)
+                Analytics.logEvent("sharing_appstore", parameters: nil)
                 
                 showMenu = false
                 
@@ -411,7 +423,7 @@ struct ContentView: View {
             icon: "cup.and.heat.waves",
             title: "Buy me a coffee",
             action: {
-                Analytics.logEvent("BuyingCoffee", parameters: nil)
+                Analytics.logEvent("buying_coffee", parameters: nil)
                 
                 showMenu = false
                 showBuyMeACoffee = true

@@ -323,12 +323,12 @@ struct ContentView: View {
                     
                     Divider()
                     feedback
-                    
-                    Divider()
-                    share
-                    
-                    Divider()
-                    coffee
+// comment out features that are not ready
+//                    Divider()
+//                    share
+//                    
+//                    Divider()
+//                    coffee
                 }
                 .background(
                     RoundedRectangle(cornerRadius: 16, style: .continuous)
